@@ -16,6 +16,7 @@ http = { version = "1.1.0", optional = true }
 leptos_actix = { version = "0.6.14", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 wasm-bindgen = { version = "0.2.93", optional = true }
+charming = { version = "0.3.1", features = ["wasm"] }
 
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
@@ -44,6 +45,12 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "ferris-advisor"
@@ -54,7 +61,8 @@ site-root = "target/site"
 site-pkg-dir = "pkg"
 # [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
 style-file = "style/main.scss"
-tailwind-input-file = "style/tailwind.css"
+
+tailwind-input-file = "style/tailwind.scss"
 tailwind-config-file = "tailwind.config.js"
 # Assets source dir. All files found here will be copied and synchronized to site-root.
 # The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
@@ -68,8 +76,8 @@ reload-port = 3001
 # [Optional] Command to use when running end2end tests. It will run in the end2end dir.
 #   [Windows] for non-WSL use "npx.cmd playwright test"
 #   This binary name can be checked in Powershell with Get-Command npx
-end2end-cmd = "npx playwright test"
-end2end-dir = "end2end"
+#end2end-cmd = "npx playwright test"
+#end2end-dir = "end2end"
 #  The browserlist query used for optimizing the CSS.
 browserquery = "defaults"
 # The environment Leptos will run in, usually either "DEV" or "PROD"

@@ -22,6 +22,8 @@ Cargo.lock
 
 # Dev
 .vscode
+rustfmt.toml
+leptosfmt.toml
 
 # Dist
 dist
