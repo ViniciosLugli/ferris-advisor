@@ -55,7 +55,7 @@ pub fn GraphExample() -> impl IntoView {
 }
 
 /// Renders the home page of your application.
-#[component]
+#[island]
 fn HomePage() -> impl IntoView {
 	let (count, set_count) = create_signal(0);
 

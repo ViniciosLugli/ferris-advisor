@@ -9,5 +9,5 @@ pub fn hydrate() {
 
 	console_error_panic_hook::set_once();
 
-	mount_to_body(App);
+	leptos::leptos_dom::HydrationCtx::stop_hydrating();
 }
