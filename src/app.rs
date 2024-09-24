@@ -3,20 +3,18 @@ use charming::{component::Axis, df, series::Candlestick, Chart, WasmRenderer};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use server_fn::codec::{Cbor, Json};
 
 #[component]
 pub fn App() -> impl IntoView {
-	// Provides context that manages stylesheets, titles, meta tags, etc.
 	provide_meta_context();
 
 	view! {
 		<Stylesheet id="leptos" href="/pkg/ferris-advisor.css" />
 		<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-		// sets the document title
-		<Title text="Welcome to Leptos" />
+		<Title text="Ferris Advisor" />
 
-		// content for this welcome page
 		<Router>
 			<main>
 				<Routes>
@@ -30,7 +28,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 pub fn GraphExample() -> impl IntoView {
-	let action = create_local_resource(
+	let _ = create_local_resource(
 		|| (),
 		|_| async move {
 			let chart = Chart::new()
@@ -54,10 +52,16 @@ pub fn GraphExample() -> impl IntoView {
 	}
 }
 
-/// Renders the home page of your application.
+#[server(Example, "/api")]
+pub async fn example_fn(input: String) -> Result<(), ServerFnError> {
+	println!("Received input: {}", input);
+	Ok(())
+}
+
 #[island]
 fn HomePage() -> impl IntoView {
 	let (count, set_count) = create_signal(0);
+	let example_fn = create_server_action::<Example>();
 
 	view! {
 		<main class="my-0 mx-auto max-w-3xl text-center">
@@ -69,10 +73,13 @@ fn HomePage() -> impl IntoView {
 				class="py-3 px-5 text-white bg-amber-600 rounded-lg hover:bg-sky-700"
 				on:click=move |_| set_count.update(|count| *count += 1)
 			>
-				{move || {
-					if count.get() == 0 { "Click me!".to_string() } else { count.get().to_string() }
-				}}
+				{move || { if count.get() == 0 { "Click me!".to_string() } else { count.get().to_string() } }}
 			</button>
+
+			<ActionForm action=example_fn>
+				<label>"Add a Todo" <input type="text" name="title" /></label>
+				<input type="submit" value="Add" />
+			</ActionForm>
 
 			<div class="mt-10">
 				<GraphExample />
@@ -81,19 +88,10 @@ fn HomePage() -> impl IntoView {
 	}
 }
 
-/// 404 - Not Found
 #[component]
 fn NotFound() -> impl IntoView {
-	// set an HTTP status code 404
-	// this is feature gated because it can only be done during
-	// initial server-side rendering
-	// if you navigate to the 404 page subsequently, the status
-	// code will not be set because there is not a new HTTP request
-	// to the server
 	#[cfg(feature = "ssr")]
 	{
-		// this can be done inline because it's synchronous
-		// if it were async, we'd use a server function
 		let resp = expect_context::<leptos_actix::ResponseOptions>();
 		resp.set_status(actix_web::http::StatusCode::NOT_FOUND);
 	}
