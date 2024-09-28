@@ -3,8 +3,6 @@ use actix_files::NamedFile;
 use actix_web::{get, web, Result};
 use leptos::*;
 
-pub use ferris_advisor::app::App;
-
 #[cfg(feature = "ssr")]
 #[get("favicon.ico")]
 pub async fn favicon(leptos_options: web::Data<LeptosOptions>) -> Result<NamedFile> {

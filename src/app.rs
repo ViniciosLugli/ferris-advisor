@@ -3,7 +3,6 @@ use charming::{component::Axis, df, series::Candlestick, Chart, WasmRenderer};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use server_fn::codec::{Cbor, Json};
 
 #[component]
 pub fn App() -> impl IntoView {
