@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+RustQuant = "0.2.7"
+polars = { version = "0.43.1", features = ["lazy", "ndarray", "csv"] }
+ndarray = "0.16.1"
+tch = { version = "0.17.0", features = ["download-libtorch"] }
+safetensors = "0.4.5"
+rand = "0.8.5"
