@@ -1,13 +1,11 @@
-use std::io;
-
 mod api;
-mod pages;
 mod services;
+
 use services::{Config, Server};
 
 #[cfg(feature = "ssr")]
 #[actix_web::main]
-async fn main() -> io::Result<()> {
+async fn main() -> std::io::Result<()> {
 	env_logger::init();
 
 	let config = Config::new().await?;
@@ -20,7 +18,7 @@ pub fn main() {}
 
 #[cfg(all(not(feature = "ssr"), feature = "csr"))]
 pub fn main() {
-	use ferris_advisor::app::*;
+	use ferris_advisor::app::App;
 
 	console_error_panic_hook::set_once();
 	leptos::mount_to_body(App);
