@@ -2,7 +2,7 @@ use super::Config;
 use crate::api::assets::favicon;
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
-pub use ferris_advisor::app::App as AppRoutes;
+use ferris_advisor::app::App as AppRoutes;
 use leptos_actix::{generate_route_list, LeptosRoutes};
 use log::info;
 use std::sync::Arc;
