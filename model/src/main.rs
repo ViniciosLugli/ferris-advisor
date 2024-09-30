@@ -1,41 +1,52 @@
-use ndarray::Array2;
-use polars::prelude::*;
-use std::error::Error;
-use tch::Kind;
+mod data_processing;
+mod model;
+mod utils;
 
-use model::{
-	data_processing::{
-		create_sequences, load_data, normalize_data, select_features, sequences_to_tensor, shuffle_and_split_data,
-	},
-	model::build_and_train_model,
-};
+use crate::model::TimeSeriesModel;
+use env_logger::Env;
+use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-	let df = load_data("./ADAEUR_60.csv")?;
-	let df_sampled = select_features(&df)?;
-	println!("Converting DataFrame to ndarray...");
-	let features_data = df_sampled.to_ndarray::<Float64Type>(IndexOrder::Fortran)?;
-	let mut features_array = Array2::<f64>::from_shape_vec(
-		(features_data.shape()[0], features_data.shape()[1]),
-		features_data.iter().cloned().collect(),
-	)?;
+	env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
-	let (_means, _stds) = normalize_data(&mut features_array);
+	let df = utils::from_csv("./ADAEUR_60.csv")?; // Test data
 
 	let window_size = 14;
 	let prediction_steps = 7;
+	let sample_size = Some(1000);
 
-	let (X, y) = create_sequences(&features_array, window_size, prediction_steps);
+	let mut model = TimeSeriesModel::new(
+		3,   // input_size
+		64,  // hidden_size
+		4,   // num_layers
+		1,   // output_size
+		0.2, // dropout_rate
+		window_size,
+		prediction_steps,
+	);
 
-	let (X_train, y_train, X_test, y_test) = shuffle_and_split_data(X, y, 0.8);
+	let (x_tensor, y_tensor) = model.prepare_data(&df, sample_size)?;
 
-	let x_train_tensor = sequences_to_tensor(&X_train)?;
-	let y_train_tensor = tch::Tensor::from_slice(&y_train).to_kind(Kind::Float).unsqueeze(1);
-	let x_test_tensor = sequences_to_tensor(&X_test)?;
-	let y_test_tensor = tch::Tensor::from_slice(&y_test).to_kind(Kind::Float).unsqueeze(1);
+	let train_ratio = 0.8;
+	let (x_train, y_train, x_test, y_test) = model.train_test_split(&x_tensor, &y_tensor, train_ratio);
 
-	let num_features = features_array.shape()[1] as i64;
-	build_and_train_model(x_train_tensor, y_train_tensor, x_test_tensor, y_test_tensor, num_features)?;
+	model.train(&x_train, &y_train, 300, 0.001, 32)?;
+
+	let metrics = model.evaluate(&x_test, &y_test)?;
+	println!("Evaluation Metrics:");
+	println!("MSE: {:.6}", metrics.mse);
+	println!("RMSE: {:.6}", metrics.rmse);
+	println!("MAE: {:.6}", metrics.mae);
+	println!("R2 Score: {:.6}", metrics.r2);
+
+	model.save("model.safetensors")?;
+
+	let future_steps = 10;
+	let predictions = model.predict_future(&df, future_steps)?;
+	println!("Future Predictions:");
+	for pred in predictions {
+		println!("{:.6}", pred);
+	}
 
 	Ok(())
 }

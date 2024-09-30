@@ -28,3 +28,8 @@ rust-analyzer.toml
 
 # Dist
 dist
+
+# Temp / Assets
+temp/
+*.safetensors
+*.csv
