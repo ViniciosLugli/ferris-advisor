@@ -9,7 +9,7 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
-	let df = utils::from_csv("./ADAEUR_60.csv")?; // Test data
+	let df = utils::df_from_csv("./ADAEUR_60.csv")?; // Test data
 
 	let window_size = 14;
 	let prediction_steps = 7;

@@ -1,4 +1,4 @@
-pub mod data_processing;
+mod data_processing;
 pub mod model;
 pub mod utils;
 
