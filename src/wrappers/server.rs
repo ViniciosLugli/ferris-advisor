@@ -1,5 +1,5 @@
 use super::Config;
-use crate::api::assets::favicon;
+use crate::api::{assets::favicon, model::get_price_history};
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
 use ferris_advisor::app::App as AppRoutes;
@@ -36,6 +36,7 @@ impl Server {
 				.service(Files::new("/pkg", format!("{site_root}/pkg")))
 				.service(Files::new("/public", site_root))
 				.service(favicon)
+				.service(get_price_history)
 				.leptos_routes(leptos_options.to_owned(), routes.to_owned(), AppRoutes)
 				.app_data(web::Data::new(leptos_options.to_owned()))
 				.wrap(middleware::Compress::default())

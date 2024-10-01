@@ -1,4 +1,3 @@
-use crate::api::model::get_price_history;
 use charming::{component::Axis, df, series::Candlestick, Chart, WasmRenderer};
 use leptos::*;
 

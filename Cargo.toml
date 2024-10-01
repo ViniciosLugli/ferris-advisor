@@ -29,10 +29,10 @@ actix-web = { version = "4.9.0", optional = true, features = ["macros"] }
 
 charming = { version = "0.3.1", features = ["wasm"] }
 model = { path = "model", optional = true }
-RustQuant = { version = "0.2.7", optional = true }
+yahoo_finance_api = { version = "2.2.1", optional = true }
 polars = { version = "0.41.3", features = ["serde"], optional = true }
-time = "0.3.36"
-
+anyhow = { version = "1.0.89", optional = true }
+serde = { version = "1.0.210", optional = true }
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
 hydrate = [
@@ -47,8 +47,10 @@ ssr = [
 	"dep:actix-web",
 	"dep:leptos_actix",
 	"dep:model",
-	"dep:RustQuant",
+	"dep:yahoo_finance_api",
 	"dep:polars",
+	"dep:anyhow",
+	"dep:serde",
 	"leptos/ssr",
 	"leptos_meta/ssr",
 	"leptos_router/ssr",

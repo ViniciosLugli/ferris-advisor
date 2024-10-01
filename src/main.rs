@@ -1,7 +1,9 @@
 mod api;
-mod services;
+mod wrappers;
+use wrappers::{Config, Server};
 
-use services::{Config, Server};
+#[cfg(feature = "ssr")]
+pub mod services;
 
 #[cfg(feature = "ssr")]
 #[actix_web::main]
