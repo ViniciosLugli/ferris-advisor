@@ -526,6 +526,8 @@ It was a painful and problematic experience, especially since I caught the wave 
 
 This project was a great learning experience, i learned a lot about Rust with WebAssembly, and the challenges of building a full-stack application with these technologies... ❤️🦀
 
+About the model implementation, its incredible how easy is to implement a machine learning model in Rust, the language is very powerful and has a lot of libraries to help in the process, the only downside is the lack of a large community and the difficulty of finding help when you need it. YES, the performance is BLAZING FAST⚡⚡, but the learning curve is very steep, so be prepared for a lot of headaches on beginning. 🧠🧠
+
 ## License
 
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for details.
