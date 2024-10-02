@@ -90,10 +90,10 @@ ferris-advisor/
 ├── public/                     # Public assets (favicon, images)
 ├── src/                        # Core application (API, components, services)
 │   ├── api/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── wrappers/
+│   ├── components/ 			# Reusable UI components
+│   ├── pages/ 				    # Main dashboard pages
+│   ├── services/ 			    # API service and data processing
+│   ├── wrappers/ 			    # Utility wrappers for Server-Side Rendering
 ├── style/                      # Stylesheets (SCSS)
 ├── Cargo.toml                  # Rust project manifest
 ├── docker-compose-dev.yml      # Development environment configuration
