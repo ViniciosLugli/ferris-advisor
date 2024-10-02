@@ -15,42 +15,53 @@ crate-type = ["cdylib", "rlib"]
 log = "0.4.22"
 env_logger = "0.11.5"
 
-leptos = { version = "0.6.15", features = ["nightly", "experimental-islands"] }
-leptos_meta = { version = "0.6.15" }
-leptos_router = { version = "0.6.15" }
-leptos_actix = { version = "0.6.15", optional = true, features = [
-	"experimental-islands",
-] }
+leptos = { version = "0.6" }
+leptos_meta = { version = "0.6" }
+leptos_router = { version = "0.6" }
+leptos_actix = { version = "0.6", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 wasm-bindgen = { version = "0.2.93", optional = true }
 
 actix-files = { version = "0.6.6", optional = true }
 actix-web = { version = "4.9.0", optional = true, features = ["macros"] }
 
-charming = { version = "0.3.1", features = ["wasm"] }
+leptos-chartistry = { version = "0.1.7" }
 model = { path = "model", optional = true }
-yahoo_finance_api = { version = "2.2.1", optional = true }
 polars = { version = "0.41.3", features = ["serde"], optional = true }
 anyhow = { version = "1.0.89", optional = true }
 serde = { version = "1.0.210", optional = true }
+time = { version = "0.3.36", optional = true }
+reqwest = { version = "0.12.8", features = ["json"], optional = true }
+gloo-net = { version = "0.6.0", features = ["http"] }
+send_wrapper = "0.6.0"
+urlencoding = { version = "2.1.3", optional = true }
+chrono = { version = "0.4.38", features = ["wasmbind"], optional = true }
+serde_json = { version = "1.0.128", optional = true }
+console_log = "1.0.0"
+web-sys = { version = "0.3.70", features = ["AbortController", "AbortSignal"] }
+
 [features]
-csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
 hydrate = [
 	"dep:wasm-bindgen",
 	"dep:console_error_panic_hook",
+	"dep:chrono",
+	"dep:serde",
 	"leptos/hydrate",
-	"leptos_meta/hydrate",
-	"leptos_router/hydrate",
 ]
+csr = ["leptos/csr", "dep:chrono", "dep:serde"]
 ssr = [
 	"dep:actix-files",
 	"dep:actix-web",
 	"dep:leptos_actix",
 	"dep:model",
-	"dep:yahoo_finance_api",
 	"dep:polars",
 	"dep:anyhow",
 	"dep:serde",
+	"dep:time",
+	"dep:reqwest",
+	"dep:urlencoding",
+	"dep:chrono",
+	"dep:serde_json",
 	"leptos/ssr",
 	"leptos_meta/ssr",
 	"leptos_router/ssr",
@@ -62,11 +73,13 @@ inherits = "release"
 opt-level = 'z'
 lto = true
 codegen-units = 1
-panic = "abort"
-debug = 0
 
 [profile.release]
 panic = "abort"
+
+[package.metadata.cargo-all-features]
+denylist = ["actix-files", "actix-web", "leptos_actix"]
+skip_feature_sets = [["csr", "ssr"], ["csr", "hydrate"], ["ssr", "hydrate"]]
 
 [package.metadata.leptos]
 output-name = "ferris-advisor"
@@ -83,7 +96,7 @@ site-addr = "0.0.0.0:3333"
 reload-port = 3001
 
 browserquery = "defaults"
-env = "PROD"
+env = "DEV"
 
 bin-features = ["ssr"]
 bin-default-features = false

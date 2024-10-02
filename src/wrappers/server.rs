@@ -1,5 +1,8 @@
 use super::Config;
-use crate::api::{assets::favicon, model::get_price_history};
+use crate::api::{
+	assets::{favicon, ferris},
+	model::{check_model, get_price_history, predict, train_model},
+};
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
 use ferris_advisor::app::App as AppRoutes;
@@ -13,9 +16,7 @@ pub struct Server {
 
 impl Server {
 	pub fn new(config: Config) -> Self {
-		Self {
-			config: Arc::new(config),
-		}
+		Self { config: Arc::new(config) }
 	}
 
 	pub async fn run(self) -> std::io::Result<()> {
@@ -36,7 +37,11 @@ impl Server {
 				.service(Files::new("/pkg", format!("{site_root}/pkg")))
 				.service(Files::new("/public", site_root))
 				.service(favicon)
+				.service(ferris)
 				.service(get_price_history)
+				.service(train_model)
+				.service(check_model)
+				.service(predict)
 				.leptos_routes(leptos_options.to_owned(), routes.to_owned(), AppRoutes)
 				.app_data(web::Data::new(leptos_options.to_owned()))
 				.wrap(middleware::Compress::default())

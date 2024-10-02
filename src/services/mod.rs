@@ -1,3 +1,3 @@
-mod yahoo;
+mod kraken;
 
-pub use yahoo::YahooFinanceService;
+pub use kraken::KrakenMarketService;

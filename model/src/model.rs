@@ -1,13 +1,15 @@
 use crate::data_processing::DataProcessor;
 use log::info;
-use ndarray::{s, Array1, Array2};
+use ndarray::{s, Array, Array1, Array2};
 use polars::prelude::*;
-use std::error::Error;
+use serde::{Deserialize, Serialize};
+use serde_json;
+use std::fs::File;
+use std::{error::Error, path::Path};
 use tch::{
 	nn::{self, OptimizerConfig, RNN},
 	Device, Kind, Tensor,
 };
-
 pub struct TimeSeriesModel {
 	gru: nn::GRU,
 	fc: nn::Linear,
@@ -146,12 +148,8 @@ impl TimeSeriesModel {
 		let y_mean = y_test.mean(Kind::Float);
 		let ss_tot = y_test.f_sub(&y_mean)?.f_pow_tensor_scalar(2.0)?.sum(Kind::Float).double_value(&[]);
 		let r2 = 1.0 - ss_res / ss_tot;
-		Ok(EvaluationMetrics {
-			mse,
-			rmse,
-			mae,
-			r2,
-		})
+
+		Ok(EvaluationMetrics { mse, rmse, mae, r2 })
 	}
 
 	pub fn predict_future(&self, df: &DataFrame, steps: usize) -> Result<Vec<f64>, Box<dyn Error>> {
@@ -161,6 +159,7 @@ impl TimeSeriesModel {
 			(features_data.shape()[0], features_data.shape()[1]),
 			features_data.iter().cloned().collect(),
 		)?;
+
 		if let (Some(means), Some(stds)) = (&self.means, &self.stds) {
 			info!("Normalizing data with stored means and stds...");
 			for col in 0..features_array.shape()[1] {
@@ -171,36 +170,101 @@ impl TimeSeriesModel {
 		} else {
 			return Err("Model not trained or normalization parameters missing".into());
 		}
+
 		let start = features_array.shape()[0] - self.window_size;
 		let mut inputs = features_array.slice(s![start.., ..]).to_owned();
 		let mut predictions = Vec::new();
+
+		let mean_close = self.means.as_ref().unwrap()[0];
+		let std_close = self.stds.as_ref().unwrap()[0];
+
 		for _ in 0..steps {
+			let num_elements = inputs.len();
+			let reshaped_size = self.window_size * self.input_size as usize;
+			if num_elements != reshaped_size as usize {
+				return Err(format!(
+					"Invalid shape for input tensor: expected {} elements but got {}",
+					reshaped_size, num_elements
+				)
+				.into());
+			}
+
 			let x_input = Tensor::from_slice(inputs.as_slice().unwrap())
 				.reshape(&[1, self.window_size as i64, self.input_size])
 				.to_kind(Kind::Float)
 				.to_device(self.device);
+
 			let pred = self.predict(&x_input);
 			let pred_value = pred.double_value(&[0, 0]);
-			predictions.push(pred_value);
-			let new_row =
-				Array2::from_shape_vec((1, self.input_size as usize), vec![pred_value; self.input_size as usize])?;
-			inputs = Array2::from_shape_vec(
-				(self.window_size, self.input_size as usize),
-				inputs.iter().cloned().skip(self.input_size as usize).chain(new_row.iter().cloned()).collect(),
+
+			let pred_value_denorm = pred_value * std_close + mean_close;
+			predictions.push(pred_value_denorm);
+
+			let last_row = inputs.row(inputs.nrows() - 1).to_owned();
+			let mut new_row = Array1::<f64>::zeros(self.input_size as usize);
+			new_row[0] = (pred_value_denorm - mean_close) / std_close;
+
+			for i in 1..self.input_size as usize {
+				new_row[i] = last_row[i];
+			}
+
+			inputs = Array::from_shape_vec(
+				(inputs.nrows() + 1, self.input_size as usize),
+				inputs.iter().cloned().chain(new_row.iter().cloned()).collect(),
 			)?;
+
+			if inputs.nrows() > self.window_size {
+				inputs = inputs.slice(s![-(self.window_size as isize).., ..]).to_owned();
+			}
 		}
+
 		Ok(predictions)
 	}
 
-	pub fn predict(&self, x_input: &Tensor) -> Tensor { self.forward(x_input, false) }
+	pub fn predict(&self, x_input: &Tensor) -> Tensor {
+		self.forward(x_input, false)
+	}
 
 	pub fn save(&self, path: &str) -> Result<(), Box<dyn Error>> {
 		self.vs.save(path)?;
+
+		if let Some(means) = self.means.clone() {
+			let means_path = format!("{}_means.json", path);
+			let means_file = File::create(means_path)?;
+			serde_json::to_writer(means_file, &means.to_vec())?;
+		}
+
+		if let Some(stds) = self.stds.clone() {
+			let stds_path = format!("{}_stds.json", path);
+			let stds_file = File::create(stds_path)?;
+			serde_json::to_writer(stds_file, &stds.to_vec())?;
+		}
+
 		Ok(())
 	}
 
 	pub fn load(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
 		self.vs.load(path)?;
+
+		let means_path = format!("{}_means.json", path);
+		let stds_path = format!("{}_stds.json", path);
+
+		if Path::new(&means_path).exists() {
+			let means_file = File::open(means_path)?;
+			let means: Vec<f64> = serde_json::from_reader(means_file)?;
+			self.means = Some(means.into());
+		} else {
+			self.means = None;
+		}
+
+		if Path::new(&stds_path).exists() {
+			let stds_file = File::open(stds_path)?;
+			let stds: Vec<f64> = serde_json::from_reader(stds_file)?;
+			self.stds = Some(stds.into());
+		} else {
+			self.stds = None;
+		}
+
 		Ok(())
 	}
 
@@ -216,6 +280,7 @@ impl TimeSeriesModel {
 	}
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EvaluationMetrics {
 	pub mse: f64,
 	pub rmse: f64,

@@ -8,20 +8,16 @@ pub mod services;
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-	env_logger::init();
+	use env_logger::Env;
+
+	env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
 	let config = Config::new().await?;
 	let server = Server::new(config);
 	server.run().await
 }
 
-#[cfg(not(any(feature = "ssr", feature = "csr")))]
-pub fn main() {}
-
-#[cfg(all(not(feature = "ssr"), feature = "csr"))]
+#[cfg(not(feature = "ssr"))]
 pub fn main() {
-	use ferris_advisor::app::App;
-
-	console_error_panic_hook::set_once();
-	leptos::mount_to_body(App);
+	log::info!("SSR feature is disabled");
 }
