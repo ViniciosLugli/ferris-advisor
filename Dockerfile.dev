@@ -1,0 +1,63 @@
+# syntax=docker/dockerfile:1
+
+# ====== Builder Stage ======
+FROM rustlang/rust:nightly-alpine AS builder
+
+# Install necessary dependencies
+RUN apk update && \
+	apk add --no-cache bash curl npm libc-dev binaryen ca-certificates openssl-dev
+
+# Install SASS for stylesheet processing
+RUN npm install -g sass
+
+# Install cargo-leptos for building Leptos projects
+RUN curl --proto '=https' --tlsv1.2 -LsSf \
+	https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
+
+# Add the WebAssembly target
+RUN rustup target add wasm32-unknown-unknown
+
+# Set the working directory
+WORKDIR /app
+
+# Copy over Cargo manifests first to leverage Docker layer caching
+COPY Cargo.toml Cargo.toml
+COPY model/Cargo.toml model/Cargo.toml
+
+# Build dependencies to cache them
+RUN mkdir src && echo "fn main() {}" > src/main.rs && \
+	mkdir -p model/src && echo "" > model/src/lib.rs && \
+	cargo build --release --bin ferris-advisor
+
+# Remove the dummy source files
+RUN rm -rf src model/src
+
+# Copy the actual source code
+COPY . .
+
+# Build the application
+RUN cargo leptos build --release -vv
+
+# ====== Runner Stage ======
+FROM alpine:latest AS runner
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built binary and site files from the builder stage
+COPY --from=builder /app/target/release/ferris-advisor /app/
+COPY --from=builder /app/target/site /app/site
+
+# Expose the application's port
+EXPOSE 3333
+
+# Set environment variables
+ENV RUST_LOG="info"
+ENV LEPTOS_SITE_ADDR="0.0.0.0:3333"
+ENV LEPTOS_SITE_ROOT="./site"
+
+# Run the application
+CMD ["/app/ferris-advisor"]

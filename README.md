@@ -16,9 +16,14 @@ A decision support system designed for investing in cryptocurrency assets, the p
 
 ## Running the Application
 
+Currently, the application is available as a Docker container, which simplifies the deployment process and ensures consistency across different environments, follow the steps below to run the application locally, you can find the [Dockerfile](./Dockerfile.dev) and [docker-compose](./docker-compose-dev.yml) configurations in the repository.
+
 ### Requirements
 
--   Docker
+-   [Docker and Docker Compose](https://docs.docker.com/get-docker/)
+-   Any unix-like system (Linux, MacOS) is recommended for running the application.
+-   A modern web browser to access the dashboard (Brave, Chrome, Firefox, Safari), because the application uses WebAssembly technology.
+-   _NOTE_: The application use a lot of disk space, so make sure you have at least 30GB of free space 🦀(for DEV).
 
 1. Clone the repository:
 
@@ -33,7 +38,7 @@ A decision support system designed for investing in cryptocurrency assets, the p
     docker compose -f docker-compose-dev.yml up
     ```
 
-3. Access the application dashboard at `http://localhost:3333`.
+    This command is going to build the application and start the server, it will be available at `http://localhost:3333`.
 
 ## Usage
 
