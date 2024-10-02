@@ -85,19 +85,19 @@ Currently, the application is available as a Docker container, which simplifies 
 ```plaintext
 ferris-advisor/
 ├── model/                      # Model logic and data processing
-│   ├── src/
-│   └── Cargo.toml
+│   ├── src/ 				    # Model transform, training and prediction logic
+│   └── Cargo.toml 			    # Rust project manifest of model workspace
 ├── public/                     # Public assets (favicon, images)
 ├── src/                        # Core application (API, components, services)
-│   ├── api/
+│   ├── api/  				    # API endpoints and data retrieval actions
 │   ├── components/ 			# Reusable UI components
 │   ├── pages/ 				    # Main dashboard pages
 │   ├── services/ 			    # API service and data processing
 │   ├── wrappers/ 			    # Utility wrappers for Server-Side Rendering
 ├── style/                      # Stylesheets (SCSS)
-├── Cargo.toml                  # Rust project manifest
+├── Cargo.toml                  # Rust project manifest of main workspace
 ├── docker-compose-dev.yml      # Development environment configuration
-├── Dockerfile.dev                  # Docker image configuration
+├── Dockerfile.dev              # Docker image configuration
 ├── LICENSE                     # License information (GPL-3.0)
 └── README.md                   # Project documentation
 ```
