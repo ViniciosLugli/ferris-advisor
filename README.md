@@ -155,7 +155,7 @@ The project is built entirely with Rust and WebAssembly technologies, using the 
 
 The **KrakenMarketService** is responsible for fetching historical cryptocurrency price data from the Kraken API, specifically using the [OHLC (Open-High-Low-Close)](https://en.wikipedia.org/wiki/Open-high-low-close_chart) data for a specified trading pair, this service is the main sourcer of market data, providing the platform with up-to-date and accurate market data for use in price prediction models.
 
-### Key Components:
+### Components:
 
 1. **Kraken API**:
 
@@ -178,7 +178,11 @@ The **KrakenMarketService** is responsible for fetching historical cryptocurrenc
     - The service processes the raw API response by extracting relevant data points (timestamp, prices, volume, and trade counts) and converts them into a [`Polars DataFrame`](https://docs.pola.rs/py-polars/html/reference/dataframe/index.html). This structured format makes it easy to manipulate and analyze the data for further operations like model training and predictions.
 
 4. **Integration with Models**:
+
     - The processed OHLC data from Kraken is passed to the price prediction models to train and generate predictions. The model can use this historical data to learn market patterns and forecast future prices.
+
+5. **Pair Selection**:
+    - The service allows users to specify the cryptocurrency pair they want to retrieve data for, currently supporting popular pairs like `XBTUSD`, `ETHUSD`, and `LTCUSD`, but can be extended to include other pairs available on the Kraken exchange.
 
 ## Model and Data Exploration
 
