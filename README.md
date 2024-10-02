@@ -510,6 +510,14 @@ Once trained, the model can predict future cryptocurrency prices by processing r
 
 Finally, the predictions are returned to the user, who can visualize them on the dashboard and make informed decisions based on the model's insights.
 
+## Final Thoughts
+
+:warning::warning:DO NOT USE RUST FOR FRONTEND WITH SSR AND LEPTOS!!!:warning::warning:
+
+It was a painful and problematic experience, especially since I caught the wave of the 0.7 update of leptos... Many of the examples are outdated and disorganized, causing issues and confusion. It's still in a very early stage and has very little support for new technologies (which is quite understandable), so creating something professional and large-scale is very problematic. It works very well for small applications, but if you depend on a sustainable and scalable service, forget it NOW 😠😠.
+
+This project was a great learning experience, i learned a lot about Rust with WebAssembly, and the challenges of building a full-stack application with these technologies... ❤️🦀
+
 ## License
 
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for details.
