@@ -190,6 +190,8 @@ The **KrakenMarketService** is responsible for fetching historical cryptocurrenc
 
 Is used a machine learning pipeline designed for time-series forecasting, utilizing techniques of normalization, sequence creation, and model training on cryptocurrency price data, this process ensures efficient predictions based on past trends.
 
+The time-series prediction model has be selected based on its ability to capture temporal dependencies in the data and make accurate predictions for future prices, the model is trained on historical price data and evaluated using common metrics like Mean Squared Error (MSE), Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and R-squared (R²).
+
 ### Data Processing Pipeline
 
 The system includes a `DataProcessor` struct responsible for preparing the data. The key steps include:
