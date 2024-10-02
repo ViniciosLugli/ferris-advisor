@@ -99,6 +99,8 @@ ferris-advisor/
 ├── docker-compose-dev.yml      # Development environment configuration
 ├── Dockerfile.dev              # Docker image configuration
 ├── LICENSE                     # License information (GPL-3.0)
+├── rust-toolchain.toml 	    # Rust toolchain workspace configuration
+├── tailwind.config.js 		    # Tailwind CSS configuration file
 └── README.md                   # Project documentation
 ```
 
